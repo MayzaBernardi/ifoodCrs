@@ -10,7 +10,7 @@ const Restaurantes = sequelize.define(
         primaryKey: true,
         autoIncrement: true
     },
-    nomeRestaurante: {
+    nome_restaurante: {
         type: DataTypes.STRING(100),
         allowNull: false,
         unique: true
@@ -20,11 +20,11 @@ const Restaurantes = sequelize.define(
         allowNull: false,
         unique: true
     },
-    horarioFuncionamento: {
+    horario_atendimento: {
         type: DataTypes.STRING(150),
         allowNull: false
     }, 
-    tempoEntrega: {
+    tempo_entrega: {
         type: DataTypes.TIME,
         allowNull: false    
         }
