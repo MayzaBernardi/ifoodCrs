@@ -4,6 +4,13 @@ import enderecosRoute from "./enderecoRoute.js";
 import restaurantesRoute from "./restaurantesRoute.js";
 import categoriasRoute from "./categoriasRoute.js";
 import cuponsRoute from "./cuponsRoute.js";
+import cardapiosRoute from "./cardapioRoute.js";
+import carrinhosRoute from "./carrinhosRoute.js";
+import entregadoresRoute from "./entregadoresRoute.js";
+import favoritosRoute from "./favoritosRoute.js";
+import pagamentosRoute from "./pagamentoRoute.js";
+import pedidos from "./pedidosRoute.js";
+import statusRoute from "./statusRoute.js";
 
 const router = express.Router();
 
@@ -12,5 +19,12 @@ router.use(enderecosRoute);
 router.use(cuponsRoute);
 router.use(restaurantesRoute);
 router.use(categoriasRoute);
+router.use(cardapiosRoute);
+router.use(carrinhosRoute);
+router.use(entregadoresRoute);
+router.use(favoritosRoute);
+router.use(pagamentosRoute);
+router.use(pedidos);
+router.use(statusRoute);
 
 export default router;

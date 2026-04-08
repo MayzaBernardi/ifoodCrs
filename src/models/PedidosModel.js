@@ -16,6 +16,11 @@ const Pedidos = sequelize.define('Pedidos', {
     observacao: {
         type: DataTypes.STRING(255),
         allowNull: true
+    },
+    data_pedido: {
+        type: DataTypes.DATE,
+        allowNull: false,
+        defaultValue: DataTypes.NOW
     }
 },
 {

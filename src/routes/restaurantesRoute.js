@@ -6,6 +6,7 @@ const router = express.Router();
 router.get('/restaurantes/get-all', restaurantesController.get);
 router.get('/restaurantes/:id', restaurantesController.getById);
 router.get('/restaurantes/:id_categoria', restaurantesController.getByCategoria);
+router.get('/restaurantes/abertosAgora', restaurantesController.getByHorarioAndFavoritadoRaw);
 
 router.post('/restaurantes', restaurantesController.create);
 

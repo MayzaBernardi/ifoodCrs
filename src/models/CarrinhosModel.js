@@ -9,7 +9,7 @@ const Carrinhos = sequelize.define('Carrinhos', {
         primaryKey: true,
         autoIncrement: true
     },
-    valorIndividual: {
+    valor_individual: {
         type: DataTypes.FLOAT,
         allowNull: false
     }

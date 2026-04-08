@@ -1,4 +1,8 @@
+// import sequelize from '../config/index.js';
+import { QueryTypes } from 'sequelize';
 import Restaurantes from '../models/RestaurantesModel.js';
+import Pessoas from '../models/PessoasModel.js';
+import Favoritos from '../models/FavoritosModel.js';
 
 const get = async (req, res) => {
     try{
@@ -97,6 +101,60 @@ const getByCategoria = async (req, res) => {
 
     }
 }   
+
+const getByHorarioAndFavoritadoRaw = async (req, res) => {
+    try {
+        const { horario_atendimento } = req.query;
+
+        if (!horario_atendimento) {
+            return res.status(400).send({
+                type: 'error',
+                message: 'O horário de atendimento é obrigatório!',
+                data: null,
+            });
+        }
+    
+        const querySQL = `
+            SELECT 
+                r.*, 
+                f.id AS favorito_id, 
+                p.nome AS pessoa_nome
+            FROM restaurantes r
+            LEFT JOIN favoritos f ON r.id = f.id_restaurantes
+            LEFT JOIN pessoas p ON f.id_pessoas = p.id
+            WHERE r.horario_atendimento = :horario
+            ORDER BY f.id DESC;
+        `;
+
+        
+        const restaurantes = await sequelize.query(querySQL, {
+            replacements: { horario: horario_atendimento }, 
+            type: QueryTypes.SELECT 
+        });
+
+        if (!restaurantes || restaurantes.length === 0) {
+            return res.status(404).send({
+                type: 'error',
+                message: 'Nenhum restaurante encontrado para o horário informado!',
+                data: null,
+            });
+        }
+
+        return res.status(200).send({
+            type: 'success',
+            message: 'Restaurantes listados com sucesso!',
+            data: restaurantes,
+        });
+
+    } catch (error) {
+        console.error(error.message);
+        return res.status(500).send({
+            type: 'error',
+            message: 'Ops! Ocorreu um erro interno na consulta.',
+            data: error.message,
+        });
+    }
+};
 
 const create = async (req, res) => {
     try {
@@ -217,6 +275,7 @@ export default {
     get,
     getById,
     getByCategoria,
+    getByHorarioAndFavoritadoRaw,
     create,
     update,
     destroy

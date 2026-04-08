@@ -1,7 +1,7 @@
 import { sequelize } from '../config/index.js';
 import { DataTypes } from 'sequelize';
 import Status from './StatusModel.js';
-import TipoPagamento from './tipoPagamentoModel.js';
+import TipoPagamento from './TipoPagamentoModel.js';
 
 const Pagamentos = sequelize.define('Pagamentos', {
     id: {

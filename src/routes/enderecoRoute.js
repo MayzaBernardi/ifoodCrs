@@ -1,5 +1,6 @@
 import express from "express";
 import enderecosController from "../controllers/enderecosController.js";
+import restaurantesController from "../controllers/restaurantesController.js";
 
 const router = express.Router();
 
