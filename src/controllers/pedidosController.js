@@ -6,10 +6,13 @@ import pagamentos from "../models/PagamentosModel.js";
 import enderecos from "../models/EnderecosModel.js";
 import status from "../models/StatusModel.js";
 import TipoPagamento from "../models/TipoPagamentoModel.js";
+import cardapios from "../models/CardapiosModel.js";
 
 const get = async (req, res) => {
     try {
-        const data = await pedidos.findAll();
+        const data = await pedidos.findAll({
+            order: [['id', 'ASC']] 
+        });
         res.status(200).json(data);
     } catch (error) {
         res.status(500).json({ error: error.message });
@@ -138,4 +141,50 @@ const destroy = async (req, res) => {
     }
 }
 
-export default { get, create, getById, getByPessoaId, update, destroy, getDisponiveisParaEntrega};
+const PostFinalizarPedido = async (req, res) => {
+    try {
+        const { id } = req.params;
+
+        if (isNaN(id)) {
+            return res.status(400).json({ error: 'O id deve ser um número!' });
+        }
+
+        const pedido = await pedidos.findByPk(id);
+        
+        if (!pedido) {
+            return res.status(404).json({ error: 'Pedido não encontrado!' });
+        }
+
+        if (pedido.id_status !== 2 && pedido.id_status !== 4) {
+            return res.status(400).json({ error: 'O pedido deve estar com status "Em preparo" ou "Saiu para entrega" para ser finalizado!' });
+        }
+
+        const pagamento = await pagamentos.findByPk(pedido.id_pagamento);
+        
+        if (!pagamento) {
+            return res.status(404).json({ error: 'Pagamento não encontrado! Revise o pagamento do pedido' });
+        }
+
+        await pedidos.update(
+            { id_status: 3 }, 
+            { where: { id } }
+        );
+
+        const pedidoFinalizado = await pedidos.findByPk(id);
+
+        return res.status(200).json({
+            type: 'success',
+            message: 'Pedido finalizado com sucesso!',
+            data: {
+                pedido: pedidoFinalizado,
+                pagamento: pagamento
+            }
+        });
+
+    } catch (error) {
+        console.error(error.message);
+        return res.status(500).json({ error: error.message });
+    }
+}
+
+export default { get, create, getById, getByPessoaId, update, destroy, getDisponiveisParaEntrega, PostFinalizarPedido};

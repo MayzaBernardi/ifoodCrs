@@ -1,5 +1,6 @@
 import entregadores from '../models/EntregadoresModel.js';
 import Pessoas from '../models/PessoasModel.js';
+import pedidos from '../models/PedidosModel.js';
 
 const get = async (req, res) => {
     try {
@@ -163,11 +164,62 @@ const update = async (req, res) => {
     }
 }
 
+const postPegarPedido = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { id_entregadores } = req.body;
+
+        if (isNaN(id)) {
+            return res.status(400).json({ error: 'O id deve ser um número!' });
+        }
+
+        if (!id_entregadores) {
+            return res.status(400).json({ error: 'O id_entregadores é obrigatório no corpo da requisição!' });
+        }
+
+        const pedido = await pedidos.findByPk(id);
+
+        if (!pedido) {
+            return res.status(404).json({ error: 'Pedido não encontrado!' });
+        }
+        if (pedido.id_status !== 2) {
+            return res.status(400).json({ error: 'O pedido deve estar com status "Finalizado" para ser pego!' });
+        }
+        if(pedido.id_entregadores !== null) {
+            return res.status(400).json({ error: 'Esse pedido não esta disponível para entrega!' });
+        }
+
+        await pedidos.update(
+            { 
+                id_status: 4, // Atualiza o status para "Saiu para entrega"
+                id_entregadores: id_entregadores  // Atribui o entregador ao pedido
+            },
+            { where: { id } }
+        );
+        
+        const pedidoAtualizado = await pedidos.findByPk(id);
+        res.status(200).json({
+            type: 'success',
+            message: 'Pedido pego para entrega com sucesso!',
+            data: pedidoAtualizado
+        });
+
+    } catch (error) {
+        res.status(500).json({
+            type: 'error',
+            message: 'Ops! Ocorreu um erro ao pegar o pedido para entrega.',  
+            data: error.message,
+        });
+    }
+}
+
+
 export default {
     get,
     getById,
     create,
     update,
-    destroy
+    destroy,
+    postPegarPedido
 };  
 

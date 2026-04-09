@@ -138,7 +138,7 @@ const getByRestaurante = async (req, res) => {
 
 const create = async (req, res) => {
     try {
-        // Recebendo apenas os campos que existem na tabela cardapios
+        
         const { preco, id_categorias, id_restaurantes } = req.body;
 
         if (!preco || !id_categorias || !id_restaurantes) {
@@ -194,7 +194,7 @@ const update = async (req, res) => {
             });
         }
 
-        // Atualiza apenas com os campos da tabela
+        
         cardapio.preco = preco || cardapio.preco;
         cardapio.id_categorias = id_categorias || cardapio.id_categorias;
         cardapio.id_restaurantes = id_restaurantes || cardapio.id_restaurantes;

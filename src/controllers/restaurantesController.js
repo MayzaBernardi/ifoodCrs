@@ -1,5 +1,8 @@
+import sequelize from '../config/index.js';
 import { QueryTypes } from 'sequelize';
 import Restaurantes from '../models/RestaurantesModel.js';
+import pessoas from '../models/PessoasModel.js';
+import favoritos from '../models/FavoritosModel.js';
 
 const get = async (req, res) => {
     try {
@@ -62,12 +65,20 @@ const getById = async (req, res) => {
 
 const getByHorarioAndFavoritadoRaw = async (req, res) => {
     try {
-        const { horario, id_pessoa } = req.query;
+        const { horario_atendimento, id_pessoas } = req.query;
 
-        if (!horario) {
+        if (!id_pessoas || isNaN(id_pessoas)) {
             return res.status(400).send({
                 type: 'error',
-                message: 'O parâmetro de horário é obrigatório!',
+                message: 'O id_pessoas deve ser um número e é obrigatório para verificar os favoritos!',
+                data: null,
+            });
+        }
+
+        if (!horario_atendimento) {
+            return res.status(400).send({
+                type: 'error',
+                message: 'O campo horario_atendimento é obrigatório para buscar os restaurantes abertos!',
                 data: null,
             });
         }
@@ -79,15 +90,15 @@ const getByHorarioAndFavoritadoRaw = async (req, res) => {
             FROM restaurantes r
             LEFT JOIN favoritos f 
                 ON r.id = f.id_restaurantes 
-                ${id_pessoa ? 'AND f.id_pessoas = :id_pessoa' : ''}
-            WHERE r.horario_atendimento = :horario
+                ${id_pessoas ? 'AND f.id_pessoas = :id_pessoas' : ''}
+            WHERE r.horario_atendimento = :horario_atendimento
             ORDER BY is_favorito DESC, r.nome_restaurante ASC;
         `;
         
         const restaurantes = await sequelize.query(querySQL, {
             replacements: { 
-                horario: horario,
-                ...(id_pessoa && { id_pessoa }) 
+                horario_atendimento: horario_atendimento,
+                ...(id_pessoas && { id_pessoas }) 
             }, 
             type: QueryTypes.SELECT 
         });
@@ -175,7 +186,7 @@ const update = async (req, res) => {
             });
         }
 
-        // Atualiza apenas o que foi enviado no body
+        
         restaurante.nome_restaurante = nome_restaurante || restaurante.nome_restaurante;
         restaurante.cnpj = cnpj || restaurante.cnpj;
         restaurante.horario_atendimento = horario_atendimento || restaurante.horario_atendimento;
