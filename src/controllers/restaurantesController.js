@@ -1,12 +1,8 @@
-// import sequelize from '../config/index.js';
 import { QueryTypes } from 'sequelize';
 import Restaurantes from '../models/RestaurantesModel.js';
-import Pessoas from '../models/PessoasModel.js';
-import Favoritos from '../models/FavoritosModel.js';
 
 const get = async (req, res) => {
-    try{
-
+    try {
         const dados  = await Restaurantes.findAll();
 
         return res.status(200).send({
@@ -15,9 +11,8 @@ const get = async (req, res) => {
             data: dados,
         });
 
-    }catch(error){
+    } catch(error) {
         console.error(error.message);
-
         res.status(500).send({
             type: 'error',
             message: 'Ops! Ocorreu um erro ao buscar os restaurantes.',
@@ -28,7 +23,6 @@ const get = async (req, res) => {
 
 const getById = async (req, res) => {
     try {
-
         const { id } = req.params;
 
         if (isNaN(id)) {
@@ -62,54 +56,18 @@ const getById = async (req, res) => {
             message: 'Ops! Ocorreu um erro interno ao buscar o restaurante.',
             data: error.message,
         });
-
     }
 }
 
-const getByCategoria = async (req, res) => {
-    try {
-
-        const { categoria } = req.params;
-
-        const restaurantes = await Restaurantes.findAll({
-            where: {
-                categoria: categoria
-            }
-        });
-
-        if (restaurantes.length === 0) {
-            return res.status(404).send({
-                type: 'error',
-                message: 'Nenhum restaurante encontrado para a categoria informada!',
-                data: null,
-            });
-        }
-
-        return res.status(200).send({
-            type: 'success',
-            message: 'Restaurantes encontrados com sucesso!',
-            data: restaurantes,
-        });
-
-    } catch (error) {
-        console.error(error.message);
-        return res.status(500).send({
-            type: 'error',
-            message: 'Ops! Ocorreu um erro interno ao buscar os restaurantes por categoria.',
-            data: error.message,
-        });
-
-    }
-}   
 
 const getByHorarioAndFavoritadoRaw = async (req, res) => {
     try {
-        const { horario_atendimento } = req.query;
+        const { horario, id_pessoa } = req.query;
 
-        if (!horario_atendimento) {
+        if (!horario) {
             return res.status(400).send({
                 type: 'error',
-                message: 'O horário de atendimento é obrigatório!',
+                message: 'O parâmetro de horário é obrigatório!',
                 data: null,
             });
         }
@@ -117,26 +75,28 @@ const getByHorarioAndFavoritadoRaw = async (req, res) => {
         const querySQL = `
             SELECT 
                 r.*, 
-                f.id AS favorito_id, 
-                p.nome AS pessoa_nome
+                CASE WHEN f.id IS NOT NULL THEN 1 ELSE 0 END AS is_favorito
             FROM restaurantes r
-            LEFT JOIN favoritos f ON r.id = f.id_restaurantes
-            LEFT JOIN pessoas p ON f.id_pessoas = p.id
+            LEFT JOIN favoritos f 
+                ON r.id = f.id_restaurantes 
+                ${id_pessoa ? 'AND f.id_pessoas = :id_pessoa' : ''}
             WHERE r.horario_atendimento = :horario
-            ORDER BY f.id DESC;
+            ORDER BY is_favorito DESC, r.nome_restaurante ASC;
         `;
-
         
         const restaurantes = await sequelize.query(querySQL, {
-            replacements: { horario: horario_atendimento }, 
+            replacements: { 
+                horario: horario,
+                ...(id_pessoa && { id_pessoa }) 
+            }, 
             type: QueryTypes.SELECT 
         });
 
         if (!restaurantes || restaurantes.length === 0) {
             return res.status(404).send({
                 type: 'error',
-                message: 'Nenhum restaurante encontrado para o horário informado!',
-                data: null,
+                message: 'Nenhum restaurante aberto encontrado para este horário.',
+                data: [],
             });
         }
 
@@ -158,17 +118,23 @@ const getByHorarioAndFavoritadoRaw = async (req, res) => {
 
 const create = async (req, res) => {
     try {
-        const { nome, categoria } = req.body;
+        const { nome_restaurante, cnpj, horario_atendimento, tempo_entrega, id_cupons } = req.body;
 
-        if (!nome || !categoria) {
+        if (!nome_restaurante || !cnpj || !horario_atendimento || !tempo_entrega || !id_cupons) {
             return res.status(400).send({
                 type: 'error',
-                message: 'Os campos nome e categoria são obrigatórios!',
+                message: 'Todos os campos são obrigatórios (nome_restaurante, cnpj, horario_atendimento, tempo_entrega, id_cupons)!',
                 data: null,
             });
         }
 
-        const novoRestaurante = await Restaurantes.create({ nome, categoria });
+        const novoRestaurante = await Restaurantes.create({ 
+            nome_restaurante, 
+            cnpj, 
+            horario_atendimento, 
+            tempo_entrega, 
+            id_cupons 
+        });
 
         return res.status(201).send({
             type: 'success',
@@ -189,7 +155,7 @@ const create = async (req, res) => {
 const update = async (req, res) => {
     try {
         const { id } = req.params;
-        const { nome, categoria } = req.body;
+        const { nome_restaurante, cnpj, horario_atendimento, tempo_entrega, id_cupons } = req.body;
 
         if (isNaN(id)) {
             return res.status(400).send({
@@ -209,8 +175,12 @@ const update = async (req, res) => {
             });
         }
 
-        restaurante.nome = nome || restaurante.nome;
-        restaurante.categoria = categoria || restaurante.categoria;
+        // Atualiza apenas o que foi enviado no body
+        restaurante.nome_restaurante = nome_restaurante || restaurante.nome_restaurante;
+        restaurante.cnpj = cnpj || restaurante.cnpj;
+        restaurante.horario_atendimento = horario_atendimento || restaurante.horario_atendimento;
+        restaurante.tempo_entrega = tempo_entrega || restaurante.tempo_entrega;
+        restaurante.id_cupons = id_cupons || restaurante.id_cupons;
 
         await restaurante.save();
 
@@ -270,13 +240,11 @@ const destroy = async (req, res) => {
     }
 };
 
-
 export default {
     get,
     getById,
-    getByCategoria,
     getByHorarioAndFavoritadoRaw,
     create,
     update,
     destroy
-};  
+};

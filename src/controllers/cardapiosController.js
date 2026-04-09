@@ -39,7 +39,7 @@ const getById = async (req, res) => {
         if (!cardapio) {
             return res.status(404).send({
                 type: 'error',
-                message: 'Cardápio não encontrado!',
+                message: 'Item do cardápio não encontrado!',
                 data: null,
             });
         }
@@ -138,32 +138,84 @@ const getByRestaurante = async (req, res) => {
 
 const create = async (req, res) => {
     try {
-        const { nome, descricao, id_categorias } = req.body;
+        // Recebendo apenas os campos que existem na tabela cardapios
+        const { preco, id_categorias, id_restaurantes } = req.body;
 
-        if (!nome || !descricao) {
+        if (!preco || !id_categorias || !id_restaurantes) {
             return res.status(400).send({
                 type: 'error',
-                message: 'Os campos nome e descrição são obrigatórios!',
+                message: 'Os campos preco, id_categorias e id_restaurantes são obrigatórios!',
                 data: null,
             });
         }
 
-        const novoCardapio = await Cardapios.create({ nome, descricao, id_categorias });
+        const novoCardapio = await Cardapios.create({ 
+            preco, 
+            id_categorias, 
+            id_restaurantes 
+        });
 
         return res.status(201).send({
             type: 'success',
-            message: 'Cardápio criado com sucesso!',
+            message: 'Item criado no cardápio com sucesso!',
             data: novoCardapio,
         });
+
     } catch (error) {
         console.error(error.message);
         return res.status(500).send({
             type: 'error',
-            message: 'Ops! Ocorreu um erro ao criar o cardápio.',
+            message: 'Ops! Ocorreu um erro ao criar o item no cardápio.',
             data: error.message,
         });
     }
 }
+
+const update = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { preco, id_categorias, id_restaurantes } = req.body;
+
+        if (isNaN(id)) {
+            return res.status(400).send({
+                type: 'error',
+                message: 'O id deve ser um número!',
+                data: null,
+            });
+        }
+
+        const cardapio = await Cardapios.findByPk(id);
+
+        if (!cardapio) {
+            return res.status(404).send({
+                type: 'error',
+                message: 'Item do cardápio não encontrado!',
+                data: null,
+            });
+        }
+
+        // Atualiza apenas com os campos da tabela
+        cardapio.preco = preco || cardapio.preco;
+        cardapio.id_categorias = id_categorias || cardapio.id_categorias;
+        cardapio.id_restaurantes = id_restaurantes || cardapio.id_restaurantes;
+        
+        await cardapio.save();
+
+        return res.status(200).send({
+            type: 'success',
+            message: 'Cardápio atualizado com sucesso!',
+            data: cardapio,
+        });
+
+    } catch (error) {
+        console.error(error.message);
+        return res.status(500).send({
+            type: 'error',
+            message: 'Ops! Ocorreu um erro ao atualizar o cardápio.',
+            data: error.message,
+        });
+    }
+};
 
 const destroy = async (req, res) => {
     try {
@@ -200,57 +252,6 @@ const destroy = async (req, res) => {
         return res.status(500).send({
             type: 'error',
             message: 'Ops! Ocorreu um erro interno ao deletar o cardápio.',
-            data: error.message,
-        });
-    }
-};
-
-const update = async (req, res) => {
-    try {
-        const { id } = req.params;
-        const { nome, descricao, id_categorias } = req.body;
-
-        if (isNaN(id)) {
-            return res.status(400).send({
-                type: 'error',
-                message: 'O id deve ser um número!',
-                data: null,
-            });
-        }
-
-        const cardapio = await Cardapios.findByPk(id);
-
-        if (!cardapio) {
-            return res.status(404).send({
-                type: 'error',
-                message: 'Cardápio não encontrado!',
-                data: null,
-            });
-        }
-
-        if (!nome || !descricao) {
-            return res.status(400).send({
-                type: 'error',
-                message: 'Os campos nome e descrição são obrigatórios!',
-                data: null,
-            });
-        }
-
-        cardapio.nome = nome;
-        cardapio.descricao = descricao;
-        cardapio.id_categorias = id_categorias || cardapio.id_categorias;
-        await cardapio.save();
-
-        return res.status(200).send({
-            type: 'success',
-            message: 'Cardápio atualizado com sucesso!',
-            data: cardapio,
-        });
-    } catch (error) {
-        console.error(error.message);
-        return res.status(500).send({
-            type: 'error',
-            message: 'Ops! Ocorreu um erro ao atualizar o cardápio.',
             data: error.message,
         });
     }

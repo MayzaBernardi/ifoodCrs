@@ -67,12 +67,36 @@ const getByPessoaId = async (req, res) => {
     }
 }
 
-const getPedidosProntosParaEntrega = async (req, res) => {
+const getDisponiveisParaEntrega = async (req, res) => {
     try {
-        const pedidosProntos = await pedidos.findAll({ where: { id_status: 2 } });
-        res.status(200).json(pedidosProntos);
+        const pedidosDisponiveis = await pedidos.findAll({ 
+            where: { 
+                id_status: 2, 
+                id_entregadores: null 
+            } 
+        });
+
+        if (!pedidosDisponiveis || pedidosDisponiveis.length === 0) {
+            return res.status(404).json({ 
+                type: 'error',
+                message: 'Nenhum pedido disponível para entrega no momento.',
+                data: []
+            });
+        }
+
+        return res.status(200).json({
+            type: 'success',
+            message: 'Pedidos disponíveis encontrados com sucesso!',
+            data: pedidosDisponiveis
+        });
+
     } catch (error) {
-        res.status(500).json({ error: error.message });
+        console.error(error.message);
+        return res.status(500).json({ 
+            type: 'error',
+            message: 'Ops! Ocorreu um erro ao buscar os pedidos para entrega.',
+            data: error.message 
+        });
     }
 }
 
@@ -114,4 +138,4 @@ const destroy = async (req, res) => {
     }
 }
 
-export default { get, create, getById, getByPessoaId, update, destroy, getPedidosProntosParaEntrega};
+export default { get, create, getById, getByPessoaId, update, destroy, getDisponiveisParaEntrega};
