@@ -11,6 +11,7 @@ import favoritosRoute from "./favoritosRoute.js";
 import pagamentosRoute from "./pagamentoRoute.js";
 import pedidos from "./pedidosRoute.js";
 import statusRoute from "./statusRoute.js";
+import arquivosCardapioRoute from "./arquivosCardapioRoute.js";
 
 const router = express.Router();
 
@@ -26,5 +27,6 @@ router.use(favoritosRoute);
 router.use(pagamentosRoute);
 router.use(pedidos);
 router.use(statusRoute);
+router.use(arquivosCardapioRoute);
 
 export default router;

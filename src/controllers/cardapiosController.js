@@ -1,6 +1,8 @@
 import Cardapios from '../models/CardapiosModel.js';
 import Categorias from '../models/CategoriasModel.js';
 import Restaurantes from '../models/RestaurantesModel.js';
+import arquivosCardapio from '../models/ArquivosCardapioModel.js';
+import fileUpload from '../utils/fileUpload.js';
 
 const get = async (req, res) => {
     try {
@@ -136,11 +138,12 @@ const getByRestaurante = async (req, res) => {
     }
 };
 
+
 const create = async (req, res) => {
     try {
-        
         const { preco, id_categorias, id_restaurantes } = req.body;
 
+        
         if (!preco || !id_categorias || !id_restaurantes) {
             return res.status(400).send({
                 type: 'error',
@@ -155,10 +158,33 @@ const create = async (req, res) => {
             id_restaurantes 
         });
 
+        let arquivoSalvo = null;
+        const tipoArquivo = req.query.tipo || 'imagem';
+
+        if (req.files && req.files.uploadFile) {
+            let upload = await fileUpload(req.files.uploadFile, {
+                id: novoCardapio.id, 
+                tipo: tipoArquivo,
+                tabela: 'arquivosCardapio'
+            });
+
+            
+            arquivoSalvo = await arquivosCardapio.create({
+                id: novoCardapio.id, 
+                tipo_arquivo: tipoArquivo,
+                caminho_arquivo: upload.path,
+                id_restaurante: id_restaurantes   
+            });
+        }
+
+        
         return res.status(201).send({
             type: 'success',
             message: 'Item criado no cardápio com sucesso!',
-            data: novoCardapio,
+            data: {
+                cardapio: novoCardapio,
+                arquivo: arquivoSalvo 
+            },
         });
 
     } catch (error) {
@@ -169,7 +195,7 @@ const create = async (req, res) => {
             data: error.message,
         });
     }
-}
+};
 
 const update = async (req, res) => {
     try {
@@ -256,6 +282,7 @@ const destroy = async (req, res) => {
         });
     }
 };
+
 
 export default {
     get,
