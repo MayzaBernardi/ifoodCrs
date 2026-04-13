@@ -17,7 +17,7 @@ const Pessoas = sequelize.define('Pessoas', {
         unique: true
     },
     senha: {
-        type: DataTypes.STRING(10),
+        type: DataTypes.STRING(255),
         allowNull: false
     },
     cpf: {

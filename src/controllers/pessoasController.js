@@ -1,4 +1,5 @@
 import Pessoas from '../models/PessoasModel.js';
+import bcrypt from 'bcrypt';
 
 const get = async (req, res) => {
     try{
@@ -62,14 +63,8 @@ const getById = async (req, res) => {
 };
 
 const create = async (req, res) => {
-    try{
-        const {
-            nome,
-            email,
-            senha,
-            cpf,
-            dataNascimento
-        } = req.body;
+    try {
+        const { nome, email, senha, cpf, dataNascimento } = req.body;
 
         if(!nome){
             return res.status(400).send({
@@ -79,44 +74,40 @@ const create = async (req, res) => {
             });
         }
 
+        const saltRounds = 10;
+        const senhaHash = await bcrypt.hash(senha, saltRounds);
+
         const retorno = await Pessoas.create({
             nome,
             email,
-            senha,
+            senha: senhaHash, 
             cpf,
             dataNascimento
         });
 
+        const pessoaData = retorno.toJSON();
+        delete pessoaData.senha;
+
         return res.status(201).send({
             type: 'success',
             message: 'Pessoa criada com sucesso!',
-            data: retorno,
+            data: pessoaData, 
         });
 
     } catch(error){
-    console.error(error.message);
-
-        res.status(500).send({
+        console.error(error.message);
+        return res.status(500).send({
             type: 'error',
-            message: 'Ops! Ocorreu um erro ao buscar as pessoas.',
+            message: 'Ops! Ocorreu um erro ao criar a pessoa.',
             data: error.message,
-
         });
     }
 }
 
 const update = async (req, res) => {
     try {
-
         const { id } = req.params;
-        const {
-            nome,
-            email,
-            senha,
-            cpf,
-            dataNascimento
-        } = req.body;
-
+        
         if(isNaN(id)){
             return res.status(400).send({
                 type: 'error',
@@ -135,6 +126,12 @@ const update = async (req, res) => {
             });
         }
 
+        
+        if (req.body.senha) {
+            const saltRounds = 10;
+            req.body.senha = await bcrypt.hash(req.body.senha, saltRounds);
+        }
+
         Object.keys(req.body).forEach(key => {
             if (['nome', 'email', 'senha', 'cpf', 'dataNascimento'].includes(key)) {
                 pessoa[key] = req.body[key];
@@ -143,18 +140,20 @@ const update = async (req, res) => {
 
         await pessoa.save();
 
+        const pessoaData = pessoa.toJSON();
+        delete pessoaData.senha; 
+
         return res.status(200).send({
             type: 'success',
             message: 'Pessoa atualizada com sucesso!',
-            data: pessoa,
+            data: pessoaData,
         });
 
     } catch (error) {
         console.error(error.message);
-
-        res.status(500).send({
+        return res.status(500).send({
             type: 'error',
-            message: 'Ops! Ocorreu um erro ao buscar as pessoas, revise o id e tente novamente.',
+            message: 'Ops! Ocorreu um erro ao atualizar a pessoa, revise o id e tente novamente.',
             data: error.message,
         });
     }
