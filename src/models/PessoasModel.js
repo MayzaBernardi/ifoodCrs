@@ -25,7 +25,7 @@ const Pessoas = sequelize.define('Pessoas', {
         allowNull: false,
         unique: true
     },
-    dataNascimento: {
+    data_nascimento: {
         type: DataTypes.DATE,
         allowNull: false
     }

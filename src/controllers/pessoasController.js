@@ -1,5 +1,7 @@
 import Pessoas from '../models/PessoasModel.js';
-import bcrypt from 'bcrypt';
+import PerfilUsuario from '../models/PerfilUsuarioModel.js';
+import bcrypt from 'bcryptjs';
+import jwt from 'jsonwebtoken';
 
 const get = async (req, res) => {
     try{
@@ -62,48 +64,6 @@ const getById = async (req, res) => {
     }
 };
 
-const create = async (req, res) => {
-    try {
-        const { nome, email, senha, cpf, dataNascimento } = req.body;
-
-        if(!nome){
-            return res.status(400).send({
-                type: 'error',
-                message: 'O nome é obrigatório!',
-                data: null,
-            });
-        }
-
-        const saltRounds = 10;
-        const senhaHash = await bcrypt.hash(senha, saltRounds);
-
-        const retorno = await Pessoas.create({
-            nome,
-            email,
-            senha: senhaHash, 
-            cpf,
-            dataNascimento
-        });
-
-        const pessoaData = retorno.toJSON();
-        delete pessoaData.senha;
-
-        return res.status(201).send({
-            type: 'success',
-            message: 'Pessoa criada com sucesso!',
-            data: pessoaData, 
-        });
-
-    } catch(error){
-        console.error(error.message);
-        return res.status(500).send({
-            type: 'error',
-            message: 'Ops! Ocorreu um erro ao criar a pessoa.',
-            data: error.message,
-        });
-    }
-}
-
 const update = async (req, res) => {
     try {
         const { id } = req.params;
@@ -133,7 +93,7 @@ const update = async (req, res) => {
         }
 
         Object.keys(req.body).forEach(key => {
-            if (['nome', 'email', 'senha', 'cpf', 'dataNascimento'].includes(key)) {
+            if (['nome', 'email', 'senha', 'cpf', 'data_nascimento'].includes(key)) {
                 pessoa[key] = req.body[key];
             }
         });
@@ -200,11 +160,173 @@ const destroy = async (req, res) => {
     }
 }
 
+const register = async (req, res) => {
+    try {
+        const { nome, email, senha, cpf, data_nascimento } = req.body;
+
+        if(!nome || !email || !senha){
+            return res.status(400).send({
+                type: 'error',
+                message: 'Nome, email e senha são obrigatórios!',
+                data: null,
+            });
+        }
+
+        const saltRounds = 10;
+        const senhaHash = await bcrypt.hash(senha, saltRounds);
+
+        const pessoa = await Pessoas.create({
+            nome,
+            email,
+            senha: senhaHash, 
+            cpf,
+            data_nascimento
+        });
+
+        const token = jwt.sign(
+            { 
+                idUsuario: pessoa.id,
+                nomeUsuario: pessoa.nome,
+                emailUsuario: pessoa.email
+            }, 
+            process.env.SECRET_KEY, 
+            { expiresIn: '8h' } 
+        );
+        
+        return res.status(201).send({
+            type: 'success',
+            message: 'Pessoa criada com sucesso!',
+            data: { ...pessoa.toJSON(), token },
+        });
+    } catch(error){
+        console.error(error.message);
+        return res.status(500).send({
+            type: 'error',
+            message: 'Ops! Ocorreu um erro ao criar a pessoa.',
+            data: error.message,
+        });
+    }
+}
+
+const login = async (req, res) => {
+    try {
+        const { email, senha } = req.body;
+
+        if(!email || !senha){
+            return res.status(400).send({
+                type: 'error',
+                message: 'Email e senha são obrigatórios!',
+                data: null,
+            });
+        }
+
+        const pessoa = await Pessoas.findOne({ where: { email } });
+
+        if (!pessoa) {
+            return res.status(404).send({
+                type: 'error',
+                message: 'Pessoa não encontrada!',
+                data: null,
+            });
+        }
+
+        const isPasswordValid = await bcrypt.compare(senha, pessoa.senha);
+
+        if (!isPasswordValid) {
+            return res.status(401).send({
+                type: 'error',
+                message: 'Senha incorreta!',
+                data: null,
+            });
+        }
+
+        const token = jwt.sign(
+                { 
+                    idUsuario: pessoa.id, 
+                    nomeUsuario: pessoa.nome,
+                    emailUsuario: pessoa.email
+                }, 
+                process.env.SECRET_KEY, 
+                { expiresIn: '8h' } 
+            );
+
+        return res.status(200).send({
+            type: 'success',
+            message: 'Login realizado com sucesso!',
+            data: { ...pessoa.toJSON(), token },
+        });
+    } catch (error) {
+        console.error(error.message);
+        return res.status(500).send({
+            type: 'error',
+            message: 'Ops! Ocorreu um erro ao realizar o login.',
+            data: error.message,
+        });
+    }
+}   
+
+
+const delegarPerfil = async (req, res) => {
+    try {
+        const { id } = req.params; 
+        
+        const { papel } = req.body; 
+
+        const papeisPermitidos = ['admin', 'entregador', 'cliente', 'restaurante'];
+        if (!papeisPermitidos.includes(papel)) {
+            return res.status(400).send({ 
+                type: 'error', 
+                message: 'Perfil inválido! Escolha um perfil válido.' 
+            });
+        }
+
+        const pessoa = await Pessoas.findByPk(id);
+        if (!pessoa) {
+            return res.status(404).send({ 
+                type: 'error', 
+                message: 'Pessoa não encontrada no sistema!' 
+            });
+        }
+
+        const perfilExistente = await PerfilUsuario.findOne({
+            where: { pessoa_id: id, papel: papel }
+        });
+
+        if (perfilExistente) {
+            return res.status(400).send({ 
+                type: 'error', 
+                message: `Esta pessoa já possui o perfil de ${papel}!` 
+            });
+        }
+
+        const novoPerfil = await PerfilUsuario.create({
+            papel: papel,
+            pessoa_id: id
+        });
+
+        return res.status(201).send({
+            type: 'success',
+            message: `O perfil de '${papel}' foi delegado com sucesso para ${pessoa.nome}!`,
+            data: novoPerfil
+        });
+
+    } catch (error) {
+        console.error(error);
+        return res.status(500).send({ 
+            type: 'error', 
+            message: 'Erro interno ao delegar o perfil.', 
+            data: error.message 
+        });
+    }
+};
 
 export default {
     get,
     getById,
-    create,
     update,
-    destroy
+    destroy,
+    register,
+    login,
+    delegarPerfil
 };
+

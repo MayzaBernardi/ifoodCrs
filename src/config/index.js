@@ -1,5 +1,6 @@
 import { Sequelize } from "sequelize";
 import 'dotenv/config';
+import bcrypt from 'bcryptjs';
 
 export const sequelize = new Sequelize(
     process.env.POSTGRES_DB,

@@ -3,6 +3,8 @@ import express from "express";
 import routes from "./routes/index.js";
 import './models/index.js';
 import fileUpload from 'express-fileupload';
+import bcrypt from 'bcryptjs';
+
 
 const app = express();
 app.use(express.json({
