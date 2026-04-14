@@ -13,7 +13,7 @@ router.get('/pessoas/get-all', verifyToken, pessoasController.get);
 
 router.get('/pessoas/get-by-id/:id', verifyToken, pessoasController.getById);
 
-router.put('/pessoas/update/:id', verifyToken, pessoasController.update);
+router.put('/pessoas/update/:id', verifyAdmin, pessoasController.update);
 
 
 router.delete('/pessoas/delete/:id', verifyAdmin, pessoasController.destroy);

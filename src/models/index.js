@@ -13,6 +13,7 @@ import Favoritos from './FavoritosModel.js';
 import Pedidos from './PedidosModel.js';
 import Carrinhos from './CarrinhosModel.js';
 import Avaliacoes from './AvaliacoesModel.js';
+import PerfilUsuario from './PerfilUsuarioModel.js';
 
 
 
@@ -37,4 +38,6 @@ import Avaliacoes from './AvaliacoesModel.js';
     // console.log("Tabela Pagamentos criada com sucesso!");
     // await Enderecos.sync({ force: true });
     // console.log("Tabela Enderecos criada com sucesso!");
+    // await PerfilUsuario.sync({ force: true });
+    // console.log("Tabela PerfilUsuario criada com sucesso!");
 })();

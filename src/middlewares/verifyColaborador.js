@@ -1,7 +1,7 @@
 import jwt from 'jsonwebtoken';
-import Pessoas from '../models/PessoasModel.js'; 
+import PerfilUsuario from '../models/PerfilUsuarioModel.js';
 
-const verifyToken = async (req, res, next) => {
+const verifyColaborador = async (req, res, next) => {
     try {
         const authHeader = req.headers.authorization;
 
@@ -13,34 +13,40 @@ const verifyToken = async (req, res, next) => {
             });
         }
 
+        
         const token = authHeader.split(` `) [1];
 
         const usuarioDecodificado = jwt.verify(token, process.env.SECRET_KEY);
 
-        const pessoaExiste = await Pessoas.findOne({
+        
+        const perfilColaborador = await PerfilUsuario.findOne({
             where: {
-                id: usuarioDecodificado.idUsuario 
+                id_pessoa: usuarioDecodificado.idUsuario,
+                papel: ['entregador', 'admin']
             }
         });
 
-        if (!pessoaExiste) {
+        if (!perfilColaborador) {
             return res.status(403).send({
                 type: 'error',
-                message: 'Usuário não autenticado ou não existe mais!',
+                message: 'Acesso restrito! Exclusivo para entregadores colaboradores.',
                 data: []
             });
         }
         
+        
         next(); 
         
     } catch (error) {
-        return res.status(500).send({
+        
+        console.error("Erro no verifyColaborador:", error.message);
+        
+        return res.status(401).send({
             type: 'error',
             message: 'Ops! O token é inválido ou expirou.',
-            data: error.message,
-            console: console.error(error.message)
+            data: error.message
         });
     }
 };
 
-export default verifyToken;
+export default verifyColaborador;

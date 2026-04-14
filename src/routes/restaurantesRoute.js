@@ -1,14 +1,17 @@
 import express from "express";
 import restaurantesController from "../controllers/restaurantesController.js";
+import verifyToken from "../middlewares/verifyToken.js";
+import verifyRestaurante from "../middlewares/verifyRestaurante.js";
+import verifyAdmin from "../middlewares/verifyAdmin.js";
 
 const router = express.Router();
 
-router.get('/restaurantes/get-all', restaurantesController.get);
-router.get('/restaurantes/abertosAgora', restaurantesController.getByHorarioAndFavoritadoRaw);
-router.get('/restaurantes/:id', restaurantesController.getById);
+router.get('/restaurantes/get-all', verifyToken, restaurantesController.get);
+router.get('/restaurantes/abertosAgora', verifyToken, restaurantesController.getByHorarioAndFavoritadoRaw);
+router.get('/restaurantes/:id', verifyRestaurante, restaurantesController.getById);
 
-router.post('/restaurantes', restaurantesController.create);
-router.put('/restaurantes/:id', restaurantesController.update);
-router.delete('/restaurantes/:id', restaurantesController.destroy);
+router.post('/restaurantes', verifyAdmin, restaurantesController.create);
+router.put('/restaurantes/:id', verifyRestaurante, restaurantesController.update);
+router.delete('/restaurantes/:id', verifyAdmin, restaurantesController.destroy);
 
 export default router;

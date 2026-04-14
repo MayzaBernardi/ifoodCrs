@@ -213,13 +213,42 @@ const postPegarPedido = async (req, res) => {
     }
 }
 
+const getPedidosPendentes = async (req, res) => {
+    try {
+        const pedidosPendentes = await pedidos.findAll({
+            where: { id_status: 2 }, // Status "Finalizado"
+            include: [
+                {
+                    model: Pessoas,
+                    as: 'pessoa',
+                    attributes: ['nome', 'email']
+                }
+            ]
+        });
 
-export default {
+        res.status(200).json({
+            type: 'success',
+            message: 'Pedidos pendentes listados com sucesso!',
+            data: pedidosPendentes
+        });
+    } catch (error) {
+        res.status(500).json({
+            type: 'error',
+            message: 'Ops! Ocorreu um erro ao listar os pedidos pendentes.',
+            data: error.message,
+        });
+    }
+}
+
+export default{
     get,
     getById,
     create,
     update,
     destroy,
-    postPegarPedido
-};  
+    postPegarPedido,
+    getPedidosPendentes
+};
+
+
 

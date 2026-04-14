@@ -1,5 +1,6 @@
 import Pessoas from '../models/PessoasModel.js';
 import PerfilUsuario from '../models/PerfilUsuarioModel.js';
+import Restaurantes from '../models/RestaurantesModel.js';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 
@@ -289,7 +290,7 @@ const delegarPerfil = async (req, res) => {
         }
 
         const perfilExistente = await PerfilUsuario.findOne({
-            where: { pessoa_id: id, papel: papel }
+            where: { id_pessoa: id, papel: papel }
         });
 
         if (perfilExistente) {
@@ -301,7 +302,7 @@ const delegarPerfil = async (req, res) => {
 
         const novoPerfil = await PerfilUsuario.create({
             papel: papel,
-            pessoa_id: id
+            id_pessoa: id
         });
 
         return res.status(201).send({
@@ -319,6 +320,9 @@ const delegarPerfil = async (req, res) => {
         });
     }
 };
+
+
+
 
 export default {
     get,
