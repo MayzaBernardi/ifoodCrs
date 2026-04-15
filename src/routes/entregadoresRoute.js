@@ -17,6 +17,8 @@ router.post('/entregadores/create', verifyAdmin, entregadoresController.create);
 
 router.delete('/entregadores/destroy/:id', verifyAdmin, entregadoresController.destroy);
 
+router.put('/entregadores/entregar-pedido/:id', verifyAdmin, entregadoresController.entregarPedido);
+
 router.put('/entregadores/update/:id', verifyAdmin, entregadoresController.update);
 
 export default router;

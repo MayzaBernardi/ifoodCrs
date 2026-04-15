@@ -240,15 +240,59 @@ const getPedidosPendentes = async (req, res) => {
     }
 }
 
-export default{
+
+const entregarPedido = async(req, res) =>{
+    try {
+        const { id } = req.params;
+
+        if (isNaN(id)) {
+            return res.status(400).json({ error: 'O id deve ser um número!' });
+        }
+
+        if (!id){
+            return res.status(400).json({ error: 'o id é obrigatório!' });
+        }
+
+        const pedidoParaEntrega = await pedidos.findByPk(id);
+
+        if (!pedidoParaEntrega) {
+            return res.status(404).json({ error: 'Pedido não encontrado!' });
+        }
+
+        if(pedidoParaEntrega.id_entregadores === null) {
+            return res.status(400).json({ error: 'Esse pedido não esta atribuido a nenhum entregador!' });
+        }
+
+        if (pedidoParaEntrega.id_status !== 4) {
+            return res.status(400).json({ error: 'O pedido deve estar com status "Saiu para entrega" para ser entregue!' });
+        }
+
+        await pedidos.update(
+            { id_status: 3},
+            { where: { id } }
+        );
+
+        res.status(200).json({
+            type: 'success',
+            message: 'Pedido entregue com sucesso!',
+        });
+        
+    } catch (error) {
+        res.status(500).json({
+            type: 'error',
+            message: 'Ops! Ocorreu um erro ao entregar o pedido.',
+            data: error.message,
+        });
+    }
+}
+
+export default {
     get,
     getById,
     create,
     update,
     destroy,
     postPegarPedido,
-    getPedidosPendentes
+    getPedidosPendentes, 
+    entregarPedido
 };
-
-
-
