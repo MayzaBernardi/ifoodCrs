@@ -10,6 +10,8 @@ router.get('/restaurantes/get-all', verifyToken, restaurantesController.get);
 router.get('/restaurantes/abertosAgora', verifyToken, restaurantesController.getByHorarioAndFavoritadoRaw);
 router.get('/restaurantes/:id', verifyRestaurante, restaurantesController.getById);
 
+router.post('/restaurantes/proximos', verifyToken, restaurantesController.postRestaurantesProximos);
+
 router.post('/restaurantes', verifyAdmin, restaurantesController.create);
 router.put('/restaurantes/:id', verifyRestaurante, restaurantesController.update);
 router.delete('/restaurantes/:id', verifyAdmin, restaurantesController.destroy);

@@ -3,6 +3,7 @@ import { QueryTypes } from 'sequelize';
 import Restaurantes from '../models/RestaurantesModel.js';
 import pessoas from '../models/PessoasModel.js';
 import favoritos from '../models/FavoritosModel.js';
+import axios from 'axios';
 
 const get = async (req, res) => {
     try {
@@ -251,11 +252,70 @@ const destroy = async (req, res) => {
     }
 };
 
+
+const postRestaurantesProximos = async (req, res) => {
+    try {
+        const { latitude, longitude } = req.body;
+
+        if(!latitude || !longitude){
+            return res.status(400).send({
+                type: 'error', 
+                message: 'Ops! precisamos que nos forneça sua localização (latitude e longitude)',
+                data: error.message
+            });
+        }
+
+        const corpoRequisicao = {
+            includedTypes: ["restaurant"],
+            maxResultCount: 10,
+            locationRestriction: {
+                circle: {
+                    center: {
+                        latitude: parseFloat(latitude),
+                        longitude: parseFloat(longitude)
+                    },
+                    radius: 2000.0 
+                }
+            }
+        };
+
+        const respostaGoogle = await axios.post(
+            'https://places.googleapis.com/v1/places:searchNearby', corpoRequisicao, 
+                {
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-Goog-Api-Key': process.env.GOOGLE_API_KEY,
+                        'X-Goog-FieldMask': 'places.displayName,places.formattedAddress'
+                    }
+
+                }
+            );
+
+    return res.status(200).send({
+        type: 'success',
+        message: 'Restaurantes próximos buscados com sucesso!',
+        data: respostaGoogle.data.places || []
+    });
+
+    } catch (error) {
+        console.error("Erro na API do Google:", error.response?.data || error.message);
+
+        return res.status(500).send({
+            type: 'error',
+            message: 'Ops! Ocorreu um erro interno na API do Google ao buscar os restaurantes.',
+            data: error.message,
+        });
+    }
+}
+
+
+
 export default {
     get,
     getById,
     getByHorarioAndFavoritadoRaw,
     create,
     update,
-    destroy
+    destroy,
+    postRestaurantesProximos
 };
