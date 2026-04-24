@@ -4,6 +4,7 @@ import routes from "./routes/index.js";
 import './models/index.js';
 import fileUpload from 'express-fileupload';
 import bcrypt from 'bcryptjs';
+import cors from 'cors';
 
 
 const app = express();
@@ -11,6 +12,7 @@ app.use(express.json({
     limit: '50mb'
 }));
 
+app.use(cors());
 
 app.use(fileUpload({ 
     createParentPath: true 
