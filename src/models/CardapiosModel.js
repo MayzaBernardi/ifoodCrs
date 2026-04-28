@@ -2,6 +2,7 @@ import { sequelize } from '../config/index.js';
 import { DataTypes } from 'sequelize';
 import Categorias from './CategoriasModel.js';
 import Restaurantes from './RestaurantesModel.js';
+import ArquivosCardapio from './ArquivosCardapioModel.js';
 
 const Cardapios = sequelize.define('Cardapios', {
     id: {
@@ -12,7 +13,12 @@ const Cardapios = sequelize.define('Cardapios', {
     preco: {
         type: DataTypes.FLOAT,
         allowNull: false
+    },
+    nome_prato: {
+        type: DataTypes.STRING,
+        allowNull: false
     }
+
 },
 {
     freezeTableName: true,
@@ -43,5 +49,6 @@ Cardapios.belongsTo(Restaurantes, {
         field: 'id_restaurantes'
     }
 });
+
 
 export default Cardapios;

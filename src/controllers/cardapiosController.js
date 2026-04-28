@@ -141,18 +141,19 @@ const getByRestaurante = async (req, res) => {
 
 const create = async (req, res) => {
     try {
-        const { preco, id_categorias, id_restaurantes } = req.body;
+        const { nome_prato, preco, id_categorias, id_restaurantes } = req.body;
 
         
-        if (!preco || !id_categorias || !id_restaurantes) {
+        if (!nome_prato || !preco || !id_categorias || !id_restaurantes) {
             return res.status(400).send({
                 type: 'error',
-                message: 'Os campos preco, id_categorias e id_restaurantes são obrigatórios!',
+                message: 'Os campos nome_prato, preco, id_categorias e id_restaurantes são obrigatórios!',
                 data: null,
             });
         }
 
         const novoCardapio = await Cardapios.create({ 
+            nome_prato,
             preco, 
             id_categorias, 
             id_restaurantes 
@@ -200,7 +201,7 @@ const create = async (req, res) => {
 const update = async (req, res) => {
     try {
         const { id } = req.params;
-        const { preco, id_categorias, id_restaurantes } = req.body;
+        const { nome_prato, preco, id_categorias, id_restaurantes } = req.body;
 
         if (isNaN(id)) {
             return res.status(400).send({
@@ -220,7 +221,7 @@ const update = async (req, res) => {
             });
         }
 
-        
+        cardapio.nome_prato = nome_prato || cardapio.nome_prato;
         cardapio.preco = preco || cardapio.preco;
         cardapio.id_categorias = id_categorias || cardapio.id_categorias;
         cardapio.id_restaurantes = id_restaurantes || cardapio.id_restaurantes;

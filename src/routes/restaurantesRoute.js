@@ -12,7 +12,7 @@ router.get('/restaurantes/:id', verifyRestaurante, restaurantesController.getByI
 
 router.post('/restaurantes/proximos', verifyToken, restaurantesController.postRestaurantesProximos);
 
-router.post('/restaurantes', verifyAdmin, restaurantesController.create);
+router.post('/restaurantes/create', restaurantesController.create);
 router.put('/restaurantes/:id', verifyRestaurante, restaurantesController.update);
 router.delete('/restaurantes/:id', verifyAdmin, restaurantesController.destroy);
 

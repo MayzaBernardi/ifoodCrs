@@ -40,4 +40,6 @@ import PerfilUsuario from './PerfilUsuarioModel.js';
     // console.log("Tabela Enderecos criada com sucesso!");
     // await PerfilUsuario.sync({ force: true });
     // console.log("Tabela PerfilUsuario criada com sucesso!");
+    // await Cardapios.sync({ force: true });
+    // console.log("Tabela Cardapios criada com sucesso!");
 })();
