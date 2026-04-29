@@ -4,6 +4,8 @@ import Restaurantes from '../models/RestaurantesModel.js';
 import pessoas from '../models/PessoasModel.js';
 import favoritos from '../models/FavoritosModel.js';
 import axios from 'axios';
+import bcrypt from 'bcryptjs';
+
 
 const get = async (req, res) => {
     try {
@@ -130,12 +132,12 @@ const getByHorarioAndFavoritadoRaw = async (req, res) => {
 
 const create = async (req, res) => {
     try {
-        const { nome_restaurante, cnpj, horario_atendimento, tempo_entrega, id_cupons } = req.body;
+        const { nome_restaurante, cnpj, horario_atendimento, tempo_entrega, senha, email } = req.body;
 
-        if (!nome_restaurante || !cnpj || !horario_atendimento || !tempo_entrega || !id_cupons) {
+        if (!nome_restaurante || !cnpj || !horario_atendimento || !tempo_entrega || !senha || !email) {
             return res.status(400).send({
                 type: 'error',
-                message: 'Todos os campos são obrigatórios (nome_restaurante, cnpj, horario_atendimento, tempo_entrega, id_cupons)!',
+                message: 'Todos os campos são obrigatórios (nome_restaurante, cnpj, horario_atendimento, tempo_entrega, senha, email)!',
                 data: null,
             });
         }
@@ -145,8 +147,12 @@ const create = async (req, res) => {
             cnpj, 
             horario_atendimento, 
             tempo_entrega, 
-            id_cupons 
+            senha: senhaHash, 
+            email 
         });
+
+        const saltRounds = 10;
+        const senhaHash = await bcrypt.hash(senha, saltRounds);
 
         return res.status(201).send({
             type: 'success',
@@ -167,7 +173,7 @@ const create = async (req, res) => {
 const update = async (req, res) => {
     try {
         const { id } = req.params;
-        const { nome_restaurante, cnpj, horario_atendimento, tempo_entrega, id_cupons } = req.body;
+        const { nome_restaurante, cnpj, horario_atendimento, tempo_entrega, senha, email } = req.body;
 
         if (isNaN(id)) {
             return res.status(400).send({
@@ -192,7 +198,8 @@ const update = async (req, res) => {
         restaurante.cnpj = cnpj || restaurante.cnpj;
         restaurante.horario_atendimento = horario_atendimento || restaurante.horario_atendimento;
         restaurante.tempo_entrega = tempo_entrega || restaurante.tempo_entrega;
-        restaurante.id_cupons = id_cupons || restaurante.id_cupons;
+        restaurante.senha = senha || restaurante.senha;
+        restaurante.email = email || restaurante.email;
 
         await restaurante.save();
 

@@ -27,9 +27,17 @@ const Restaurantes = sequelize.define(
     tempo_entrega: {
         type: DataTypes.TIME,
         allowNull: false    
-        }
     },
-        {
+    senha: {
+        type: DataTypes.STRING(255),
+        allowNull: false
+    },
+    email: {
+        type: DataTypes.STRING(100),
+        allowNull: false,
+        unique: true
+    }
+    },{
         freezeTableName: true,
         tableName: 'restaurantes',
         timestamps: true,
