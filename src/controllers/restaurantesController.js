@@ -142,6 +142,9 @@ const create = async (req, res) => {
             });
         }
 
+        const saltRounds = 10;
+        const senhaHash = await bcrypt.hash(senha, saltRounds);
+
         const novoRestaurante = await Restaurantes.create({ 
             nome_restaurante, 
             cnpj, 
@@ -150,9 +153,6 @@ const create = async (req, res) => {
             senha: senhaHash, 
             email 
         });
-
-        const saltRounds = 10;
-        const senhaHash = await bcrypt.hash(senha, saltRounds);
 
         return res.status(201).send({
             type: 'success',

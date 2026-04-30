@@ -16,7 +16,7 @@ const Restaurantes = sequelize.define(
         unique: true
     },
     cnpj: {
-        type: DataTypes.STRING(14),
+        type: DataTypes.STRING(25),
         allowNull: false,
         unique: true
     },
@@ -51,7 +51,7 @@ const Restaurantes = sequelize.define(
         onUpdate: 'NO ACTION',
         foreignKey: {
             name: 'id_cupons',
-            allowNull: false,
+            allowNull: true,
             field: 'id_cupons'
         }
     });

@@ -13,7 +13,7 @@ router.get('/entregadores/pedidos/pendentes', verifyColaborador, entregadoresCon
 
 
 router.post('/entregadores/pegar-pedido/:id', verifyColaborador, entregadoresController.postPegarPedido);
-router.post('/entregadores/create', verifyAdmin, entregadoresController.create);
+router.post('/entregadores/create', entregadoresController.create);
 
 router.delete('/entregadores/destroy/:id', verifyAdmin, entregadoresController.destroy);
 
