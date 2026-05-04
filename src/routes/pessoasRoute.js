@@ -8,6 +8,7 @@ const router = express.Router();
 router.post('/pessoas/login', pessoasController.login);
 router.post('/pessoas/register', pessoasController.register);
 
+router.post('/pessoas/esqueci-senha', pessoasController.esqueceuSenha);
 
 router.get('/pessoas/get-all', verifyToken, pessoasController.get);
 

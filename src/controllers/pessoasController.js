@@ -3,6 +3,7 @@ import PerfilUsuario from '../models/PerfilUsuarioModel.js';
 import Restaurantes from '../models/RestaurantesModel.js';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
+import enviarEmail from '../utils/sendMail.js';
 
 const get = async (req, res) => {
     try{
@@ -321,6 +322,58 @@ const delegarPerfil = async (req, res) => {
     }
 };
 
+const esqueceuSenha = async (req, res) => {
+    try {
+        const { email } = req.body;
+
+        if (!email) {
+            return res.status(400).send({
+                type: 'error',
+                message: 'O email é obrigatório para recuperar a senha!',
+                data: null,
+            });
+        }
+
+        const pessoa = await Pessoas.findOne({ where: { email } });
+
+        if (pessoa) {
+            const token = Math.floor(100000 + Math.random() * 900000).toString();
+
+
+            await pessoa.update({ token_recuperacao: token });
+            console.log('Token gerado e salvo:', token);
+
+            const emailEnviado = await enviarEmail(
+                'Equipe ifood',
+                pessoa.email,
+                'Recuperação de Senha',
+                `<p>Olá, ${pessoa.nome}!</p>
+                <p>Você solicitou a recuperação de senha. Digite o código abaixo no aplicativo:</p>
+                <p><strong>${token}</strong></p>`
+            );
+
+            if (!emailEnviado) {
+                console.error(`Falha ao enviar email de recuperação para: ${pessoa.email}`);
+            }
+        }
+
+        return res.status(200).send({
+            type: 'success',
+            message: 'Se o email estiver cadastrado, um código de recuperação foi enviado para sua caixa de entrada.',
+            data: null,
+        });
+
+    } catch (error) {
+        console.error("Erro no esqueceuSenha:", error.message);
+        
+        return res.status(500).send({
+            type: 'error',
+            message: 'Ops! Ocorreu um erro interno ao processar a recuperação de senha.',
+            data: null,
+        });
+    }
+};
+
 
 
 
@@ -331,6 +384,7 @@ export default {
     destroy,
     register,
     login,
-    delegarPerfil
+    delegarPerfil,
+    esqueceuSenha
 };
 

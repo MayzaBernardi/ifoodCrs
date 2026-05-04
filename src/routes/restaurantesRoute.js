@@ -7,7 +7,7 @@ import verifyAdmin from "../middlewares/verifyAdmin.js";
 const router = express.Router();
 
 router.get('/restaurantes/get-all', restaurantesController.get);
-router.get('/restaurantes/abertosAgora', verifyToken, restaurantesController.getByHorarioAndFavoritadoRaw);
+router.get('/restaurantes/abertosAgora',  restaurantesController.getByHorarioAndFavoritadoRaw);
 router.get('/restaurantes/:id', verifyRestaurante, restaurantesController.getById);
 
 router.post('/restaurantes/proximos', verifyToken, restaurantesController.postRestaurantesProximos);

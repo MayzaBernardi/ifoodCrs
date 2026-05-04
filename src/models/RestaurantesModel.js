@@ -2,6 +2,7 @@ import { sequelize } from "../config/index.js";
 import { DataTypes } from "sequelize";
 import Cupons from "./CuponsModel.js";
 
+
 const Restaurantes = sequelize.define(
     'nome_restaurante', 
     {
@@ -44,6 +45,7 @@ const Restaurantes = sequelize.define(
         createdAt: 'created_at',
         updatedAt: 'updated_at'
         });
+
 
     Restaurantes.belongsTo(Cupons, {
         as: 'cupom',

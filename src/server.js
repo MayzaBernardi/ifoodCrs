@@ -5,7 +5,10 @@ import './models/index.js';
 import fileUpload from 'express-fileupload';
 import bcrypt from 'bcryptjs';
 import cors from 'cors';
+import setupAssociations from './models/setupAssociations.js';
 
+
+setupAssociations();
 
 const app = express();
 app.use(express.json({

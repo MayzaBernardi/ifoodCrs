@@ -28,6 +28,14 @@ const Pessoas = sequelize.define('Pessoas', {
     data_nascimento: {
         type: DataTypes.DATE,
         allowNull: false
+    },
+    token_recuperacao: {
+        type: DataTypes.STRING(6), 
+        allowNull: true 
+    },
+    token_expiracao: {
+        type: DataTypes.DATE,
+        allowNull: true
     }
 }, 
 {
@@ -37,6 +45,5 @@ const Pessoas = sequelize.define('Pessoas', {
     createdAt: 'created_at',
     updatedAt: 'updated_at'
 });
-
 
 export default Pessoas;

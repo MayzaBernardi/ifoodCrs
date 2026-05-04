@@ -3,13 +3,24 @@ import { QueryTypes } from 'sequelize';
 import Restaurantes from '../models/RestaurantesModel.js';
 import pessoas from '../models/PessoasModel.js';
 import favoritos from '../models/FavoritosModel.js';
+import ArquivosCardapio from '../models/ArquivosCardapioModel.js'; 
 import axios from 'axios';
 import bcrypt from 'bcryptjs';
 
 
 const get = async (req, res) => {
     try {
-        const dados  = await Restaurantes.findAll();
+        const dados = await Restaurantes.findAll({
+            
+            attributes: { exclude: ['senha'] },
+            
+            include: [
+                {
+                    model: ArquivosCardapio,
+                    attributes: ['caminho_arquivo', 'tipo_arquivo'] 
+                }
+            ]
+        });
 
         return res.status(200).send({
             type: 'success',
@@ -18,7 +29,7 @@ const get = async (req, res) => {
         });
 
     } catch(error) {
-        console.error(error.message);
+        console.error("Erro no get de restaurantes:", error.message);
         res.status(500).send({
             type: 'error',
             message: 'Ops! Ocorreu um erro ao buscar os restaurantes.',
