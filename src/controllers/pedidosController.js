@@ -7,6 +7,7 @@ import enderecos from "../models/EnderecosModel.js";
 import status from "../models/StatusModel.js";
 import TipoPagamento from "../models/TipoPagamentoModel.js";
 import cardapios from "../models/CardapiosModel.js";
+import Carrinhos from "../models/CarrinhosModel.js";
 
 const get = async (req, res) => {
     try {
@@ -187,4 +188,56 @@ const PostFinalizarPedido = async (req, res) => {
     }
 }
 
-export default { get, create, getById, getByPessoaId, update, destroy, getDisponiveisParaEntrega, PostFinalizarPedido};
+
+const fazerCheckout = async (req, res) => {
+    try {
+        const { id_pessoas, id_enderecos, id_pagamento, observacao, itens_sacola } = req.body;
+
+        if (!id_pessoas || !id_enderecos || !id_pagamento || !itens_sacola || itens_sacola.length === 0) {
+            return res.status(400).json({ 
+                type: 'error', 
+                message: 'Faltam dados para finalizar o pedido (pessoa, endereço, pagamento ou itens)!' 
+            });
+        }
+
+        const novoPedido = await pedidos.create({
+            id_pessoas: id_pessoas,
+            id_enderecos: id_enderecos,
+            id_pagamento: id_pagamento,
+            observacao: observacao || 'Sem observações',
+            data_pedido: new Date(), 
+            id_status: 1,
+            id_cupons: null, 
+            id_entregadores: null
+        });
+
+        
+        const itensParaSalvar = itens_sacola.map(item => {
+            return {
+                id_pedidos: novoPedido.id, 
+                id_cardapios: item.id_cardapios,
+                valor_individual: item.valor_individual
+            };
+        });
+
+        await Carrinhos.bulkCreate(itensParaSalvar);
+
+        return res.status(201).json({
+            type: 'success',
+            message: 'Pedido realizado com sucesso! A cozinha já está preparando.',
+            data: {
+                numero_pedido: novoPedido.id
+            }
+        });
+
+    } catch (error) {
+        console.error("Erro no Checkout:", error.message);
+        return res.status(500).json({ 
+            type: 'error',
+            message: 'Ops! Ocorreu um erro interno ao processar seu pedido.',
+            error: error.message 
+        });
+    }
+}
+
+export default { get, create, getById, getByPessoaId, update, destroy, getDisponiveisParaEntrega, PostFinalizarPedido, fazerCheckout};

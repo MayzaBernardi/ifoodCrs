@@ -14,6 +14,7 @@ import Pedidos from './PedidosModel.js';
 import Carrinhos from './CarrinhosModel.js';
 import Avaliacoes from './AvaliacoesModel.js';
 import PerfilUsuario from './PerfilUsuarioModel.js';
+import ArquivosCardapio from './ArquivosCardapioModel.js';
 
 
 
@@ -42,4 +43,16 @@ import PerfilUsuario from './PerfilUsuarioModel.js';
     // console.log("Tabela PerfilUsuario criada com sucesso!");
     // await Cardapios.sync({ force: true });
     // console.log("Tabela Cardapios criada com sucesso!");
+    // await ArquivosCardapio.sync({ force: true });
+    // console.log("Tabela ArquivosCardapio criada com sucesso!");
+    // await RestaurantesEnderecos.sync({ force: true });
+    // console.log("Tabela RestaurantesEnderecos criada com sucesso!");
+    // await Favoritos.sync({ force: true });
+    // console.log("Tabela Favoritos criada com sucesso!");
+    // await Pedidos.sync({ force: true });
+    // console.log("Tabela Pedidos criada com sucesso!");
+    // await Carrinhos.sync({ force: true });
+    // console.log("Tabela Carrinhos criada com sucesso!");
+    // await Avaliacoes.sync({ force: true });
+    // console.log("Tabela Avaliacoes criada com sucesso!");
 })();

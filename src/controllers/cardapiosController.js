@@ -102,9 +102,9 @@ const getByCategoria = async (req, res) => {
 
 const getByRestaurante = async (req, res) => {
     try {
-        const { id_restaurantes } = req.params;
+        const id_restaurantes = req.params.id_restaurantes || req.params.id;
 
-        if (isNaN(id_restaurantes)) {
+        if (!id_restaurantes || isNaN(id_restaurantes)) {
             return res.status(400).send({
                 type: 'error',
                 message: 'O id do restaurante deve ser um número!',
@@ -112,7 +112,15 @@ const getByRestaurante = async (req, res) => {
             });
         }
 
-        const cardapios = await Cardapios.findAll({ where: { id_restaurantes } });
+        const cardapios = await Cardapios.findAll({ 
+            where: { id_restaurantes },
+            include: [
+                {
+                    model: arquivosCardapio, 
+                    as: 'arquivos_cardapios' 
+                }
+            ]
+        });
 
         if (!cardapios || cardapios.length === 0) {
             return res.status(404).send({

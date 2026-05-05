@@ -1,7 +1,6 @@
 import { sequelize } from '../config/index.js';
 import { DataTypes } from 'sequelize';
 
-
 const ArquivosCardapio = sequelize.define('arquivos_cardapio', {
     id: {
         type: DataTypes.INTEGER,
@@ -15,6 +14,14 @@ const ArquivosCardapio = sequelize.define('arquivos_cardapio', {
     caminho_arquivo: {
         type: DataTypes.STRING,
         allowNull: true
+    },
+    id_cardapios: {
+        type: DataTypes.INTEGER,
+        allowNull: true
+    },
+    id_restaurantes: { 
+        type: DataTypes.INTEGER,
+        allowNull: true
     }
 },
 {
@@ -24,6 +31,5 @@ const ArquivosCardapio = sequelize.define('arquivos_cardapio', {
     createdAt: 'created_at',
     updatedAt: 'updated_at'
 });
-
 
 export default ArquivosCardapio;

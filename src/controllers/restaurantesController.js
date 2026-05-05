@@ -11,12 +11,11 @@ import bcrypt from 'bcryptjs';
 const get = async (req, res) => {
     try {
         const dados = await Restaurantes.findAll({
-            
             attributes: { exclude: ['senha'] },
-            
             include: [
                 {
                     model: ArquivosCardapio,
+                    as: 'arquivos_cardapios', 
                     attributes: ['caminho_arquivo', 'tipo_arquivo'] 
                 }
             ]

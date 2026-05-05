@@ -8,9 +8,9 @@ const router = express.Router();
 router.get('/cardapios/get-all', verifyToken, cardapiosController.get);
 router.get('/cardapios/get-by-id/:id', verifyToken, cardapiosController.getById);
 router.get('/cardapios/categorias/:id_categorias', verifyToken, cardapiosController.getByCategoria);
-router.get('/cardapios/restaurantes/:id_restaurantes', verifyToken, cardapiosController.getByRestaurante);
+router.get('/cardapios/restaurantes/:id_restaurantes',  cardapiosController.getByRestaurante);
 
-router.post('/cardapios/create', verifyToken, verifyRestaurante, cardapiosController.create);
+router.post('/cardapios/create',  cardapiosController.create);
 
 router.delete('/cardapios/destroy/:id', verifyToken, verifyRestaurante, cardapiosController.destroy);
 

@@ -2,7 +2,6 @@ import { sequelize } from '../config/index.js';
 import { DataTypes } from 'sequelize';
 import Categorias from './CategoriasModel.js';
 import Restaurantes from './RestaurantesModel.js';
-import ArquivosCardapio from './ArquivosCardapioModel.js';
 
 const Cardapios = sequelize.define('Cardapios', {
     id: {
@@ -28,6 +27,7 @@ const Cardapios = sequelize.define('Cardapios', {
     updatedAt: 'updated_at'
 });
 
+
 Cardapios.belongsTo(Categorias, {
     as: 'categoria',
     onDelete: 'NO ACTION',
@@ -49,6 +49,7 @@ Cardapios.belongsTo(Restaurantes, {
         field: 'id_restaurantes'
     }
 });
+
 
 
 export default Cardapios;
