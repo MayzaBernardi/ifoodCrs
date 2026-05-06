@@ -8,6 +8,7 @@ import status from "../models/StatusModel.js";
 import TipoPagamento from "../models/TipoPagamentoModel.js";
 import cardapios from "../models/CardapiosModel.js";
 import Carrinhos from "../models/CarrinhosModel.js";
+import setupAssociations from "../models/setupAssociations.js";
 
 const get = async (req, res) => {
     try {
@@ -61,12 +62,29 @@ const getByPessoaId = async (req, res) => {
         if (isNaN(id_pessoas)) {
             return res.status(400).json({ error: 'O id_pessoas deve ser um número!' });
         }
-        const listaPedidos = await pedidos.findAll({ where: { id_pessoas } });
+        
+        const listaPedidos = await pedidos.findAll({ 
+            where: { id_pessoas },
+            include: [
+                { model: status, as: 'status_pedido' },
+                { model: pagamentos, as: 'pagamento_pedido' },
+                { 
+                    model: Carrinhos, 
+                    as: 'itens_sacola',
+                    include: [{ model: cardapios, as: 'produto' }] 
+                }
+            ],
+            order: [['id', 'DESC']] 
+        });
+
         if (!listaPedidos || listaPedidos.length === 0) {
             return res.status(404).json({ error: 'Nenhum pedido encontrado para essa pessoa!' });
         }
+        
         res.status(200).json(listaPedidos);
+        
     } catch (error) {
+        console.error("Erro ao buscar pedidos da pessoa:", error);
         res.status(500).json({ error: error.message });
     }
 }

@@ -18,16 +18,16 @@ const Entregadores = sequelize.define('Entregadores', {
     }
 );
 
-Entregadores.belongsTo(Pessoas, {
-    as: 'pessoa',
-    onDelete: 'NO ACTION',
-    onUpdate: 'NO ACTION',
-    foreignKey: {
-        name: 'id_pessoas',
-        allowNull: false,
-        field: 'id_pessoas'
-    }
-})
+// Entregadores.belongsTo(Pessoas, {
+//     as: 'pessoa',
+//     onDelete: 'NO ACTION',
+//     onUpdate: 'NO ACTION',
+//     foreignKey: {
+//         name: 'id_pessoas',
+//         allowNull: false,
+//         field: 'id_pessoas'
+//     }
+// })
 
 export default Entregadores;
 
