@@ -130,6 +130,8 @@ const getByRestaurante = async (req, res) => {
             });
         }
 
+        console.log(JSON.stringify(cardapios, null, 2));
+
         return res.status(200).send({
             type: 'success',
             message: 'Esse é o cardápio do restaurante solicitado!',
@@ -138,6 +140,7 @@ const getByRestaurante = async (req, res) => {
 
     } catch (error) {
         console.error(error.message);
+        console.log(JSON.stringify(cardapios, null, 2));
         return res.status(500).send({
             type: 'error',
             message: 'Ops! Ocorreu um erro interno ao buscar os cardápios.',
@@ -179,10 +182,10 @@ const create = async (req, res) => {
 
             
             arquivoSalvo = await arquivosCardapio.create({
-                id: novoCardapio.id, 
+                id_cardapios: novoCardapio.id,
                 tipo_arquivo: tipoArquivo,
                 caminho_arquivo: upload.path,
-                id_restaurante: id_restaurantes   
+                id_restaurantes: id_restaurantes
             });
         }
 

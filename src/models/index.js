@@ -15,6 +15,7 @@ import Carrinhos from './CarrinhosModel.js';
 import Avaliacoes from './AvaliacoesModel.js';
 import PerfilUsuario from './PerfilUsuarioModel.js';
 import ArquivosCardapio from './ArquivosCardapioModel.js';
+import setupAssociations from './setupAssociations.js';
 
 
 
@@ -55,4 +56,6 @@ import ArquivosCardapio from './ArquivosCardapioModel.js';
     // console.log("Tabela Carrinhos criada com sucesso!");
     // await Avaliacoes.sync({ force: true });
     // console.log("Tabela Avaliacoes criada com sucesso!");
+    // await setupAssociations();
+    // console.log("Associações configuradas com sucesso!");
 })();

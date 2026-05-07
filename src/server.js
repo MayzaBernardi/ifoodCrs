@@ -6,6 +6,8 @@ import fileUpload from 'express-fileupload';
 import bcrypt from 'bcryptjs';
 import cors from 'cors';
 import setupAssociations from './models/setupAssociations.js';
+import path from 'path';
+
 
 setupAssociations();
 
@@ -21,6 +23,7 @@ app.use(fileUpload({
 }));
 
 app.use('/public', express.static('public'));
+app.use('/public', express.static(path.resolve('public')));
 
 app.use(routes);
 

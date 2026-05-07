@@ -59,33 +59,47 @@ const getById = async (req, res) => {
 const getByPessoaId = async (req, res) => {
     try {
         const { id_pessoas } = req.params;
+
         if (isNaN(id_pessoas)) {
             return res.status(400).json({ error: 'O id_pessoas deve ser um número!' });
         }
-        
-        const listaPedidos = await pedidos.findAll({ 
+
+        const listaPedidos = await pedidos.findAll({
             where: { id_pessoas },
             include: [
-                { model: status, as: 'status_pedido' },
-                { model: pagamentos, as: 'pagamento_pedido' },
+                { 
+                    model: status, 
+                    as: 'status_pedido' 
+                },
+                { 
+                    model: pagamentos, 
+                    as: 'pagamento_pedido',
+                    include: [{ 
+                        model: TipoPagamento, 
+                        as: 'tipoPagamento' // DEVE ser igual ao 'as' que você definiu no model Pagamentos
+                    }]
+                },
                 { 
                     model: Carrinhos, 
                     as: 'itens_sacola',
-                    include: [{ model: cardapios, as: 'produto' }] 
+                    include: [{ 
+                        model: cardapios, 
+                        as: 'produto' 
+                    }] 
                 }
             ],
-            order: [['id', 'DESC']] 
+            order: [['id', 'DESC']]
         });
 
         if (!listaPedidos || listaPedidos.length === 0) {
-            return res.status(404).json({ error: 'Nenhum pedido encontrado para essa pessoa!' });
+            return res.status(404).json({ error: 'Nenhum pedido encontrado!' });
         }
-        
-        res.status(200).json(listaPedidos);
-        
+
+        return res.status(200).json(listaPedidos);
+
     } catch (error) {
-        console.error("Erro ao buscar pedidos da pessoa:", error);
-        res.status(500).json({ error: error.message });
+        console.error("Erro no controller:", error);
+        return res.status(500).json({ error: error.message });
     }
 }
 

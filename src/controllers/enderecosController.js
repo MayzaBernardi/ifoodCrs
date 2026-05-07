@@ -121,28 +121,37 @@ const createRestauranteEndereco = async (req, res) => {
 
 const createEnderecoPessoa = async (req, res) => {
     try {
-        const { logradouro, numero, id_pessoa } = req.body;
-        if (!logradouro || !numero || !id_pessoa) {
+        const { logradouro, numero, cidade, estado, cep, id_pessoas } = req.body;
+
+        if (!logradouro || !numero || !id_pessoas) {
             return res.status(400).send({
                 type: 'error',
-                message: 'Os campos logradouro, número e id_pessoa são obrigatórios!',
-                data: null,
+                message: 'Os campos logradouro, número e id_pessoas são obrigatórios!',
             });
         }
-        const novoEndereco = await enderecos.create(req.body);
+
+        const novoEndereco = await enderecos.create({
+            logradouro,
+            numero,
+            cidade,
+            estado,
+            cep,
+            id_pessoas 
+        });
+
         return res.status(201).send({
             type: 'success',
-            message: 'Endereço da pessoa criado com sucesso!',
+            message: 'Endereço salvo com sucesso!',
             data: novoEndereco,
         });
     } catch (error) {
         return res.status(500).send({
             type: 'error',
-            message: 'Ops! Ocorreu um erro interno ao criar o endereço da pessoa.',
+            message: 'Erro ao salvar endereço.',
             data: error.message,
         });
     }
-}   
+}
 
 const update = async (req, res) => {
     try {

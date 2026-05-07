@@ -7,16 +7,16 @@ import verifyAdmin from "../middlewares/verifyAdmin.js";
 
 const router = express.Router();
 
-router.get('/enderecos', verifyToken, enderecosController.get); 
+router.get('/enderecos', enderecosController.get); 
 router.get('/enderecos/restaurantes', verifyToken, enderecosController.getRestaurantes); 
 
 router.get('/enderecos/:id', verifyToken, enderecosController.getById);
 router.get('/enderecos/restaurante/:id_restaurantes', verifyToken, enderecosController.getByRestaurante);
 
 router.post('/enderecos/restaurante', verifyAdmin, enderecosController.createRestauranteEndereco);
-router.post('/enderecos/pessoa', verifyAdmin, enderecosController.createEnderecoPessoa);
+router.post('/enderecos/pessoa',  enderecosController.createEnderecoPessoa);
 
 router.put('/enderecos/:id', verifyRestaurante,enderecosController.update);
-router.delete('/enderecos/:id', verifyRestaurante, enderecosController.destroy);
+router.delete('/enderecos/:id', enderecosController.destroy);
 
 export default router;
